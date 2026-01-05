@@ -708,22 +708,6 @@ isort .
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE) file for details.
-
----
-
-## 👤 Author
-
-**Ismat Samadov**
-
-- 🌐 Website: [ismatsamadov.com](https://ismatsamadov.com)
-- 💼 LinkedIn: [@ismat-samadov](https://www.linkedin.com/in/ismat-samadov/)
-- 🐙 GitHub: [@Ismat-Samadov](https://github.com/Ismat-Samadov)
-- 📧 Email: ismetsemedov@gmail.com
-
----
 
 ## 🙏 Acknowledgments
 
