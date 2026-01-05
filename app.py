@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from demo_graph_rag import SimpleGraphRAG
+from graph_rag import GraphRAG
 from loguru import logger
 import os
 import traceback as tb
@@ -41,7 +41,7 @@ def get_rag_system():
     """Get or initialize RAG system"""
     global rag_system
     if rag_system is None:
-        rag_system = SimpleGraphRAG()
+        rag_system = GraphRAG()
         logger.success("Graph RAG system initialized")
     return rag_system
 

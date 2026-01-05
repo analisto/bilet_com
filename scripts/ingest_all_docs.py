@@ -3,7 +3,7 @@ Full Document Ingestion - Process All PDFs
 """
 import os
 import glob
-from demo_graph_rag import SimpleGraphRAG
+from graph_rag import GraphRAG
 from loguru import logger
 from tqdm import tqdm
 
@@ -16,7 +16,7 @@ def ingest_all_documents():
     print("="*70 + "\n")
 
     # Initialize Graph RAG
-    rag = SimpleGraphRAG()
+    rag = GraphRAG()
 
     try:
         # Find all PDFs
@@ -38,18 +38,18 @@ def ingest_all_documents():
             print(f"{'='*70}")
 
             try:
-                # Step 1: Extract text (limit pages for large files)
-                max_pages = 10 if file_size_mb < 5 else 5
+                # Step 1: Extract text with page numbers (more pages for better coverage)
+                max_pages = 20 if file_size_mb < 5 else 15
                 logger.info(f"Extracting text (max {max_pages} pages)...")
-                text = rag.extract_text_from_pdf(pdf_path, max_pages=max_pages)
+                pages_data = rag.extract_text_from_pdf(pdf_path, max_pages=max_pages)
 
-                if not text.strip():
+                if not pages_data or sum(len(p['text']) for p in pages_data) == 0:
                     logger.warning(f"No text extracted from {filename}, skipping")
                     continue
 
-                # Step 2: Chunk text
-                logger.info("Chunking text...")
-                chunks = rag.chunk_text(text, chunk_size=400)
+                # Step 2: Chunk text with overlap and page tracking
+                logger.info("Chunking text with page numbers...")
+                chunks = rag.chunk_text_with_pages(pages_data, chunk_size=600, overlap=100)
                 total_chunks += len(chunks)
 
                 # Step 3: Extract entities (from selected chunks to save time)
@@ -60,8 +60,9 @@ def ingest_all_documents():
                 all_entities = []
                 all_relationships = []
 
-                for chunk_idx, chunk in enumerate(tqdm(chunks_to_process, desc="Entity extraction")):
-                    entities_data = rag.extract_entities_with_llm(chunk)
+                for chunk_idx, chunk_data in enumerate(tqdm(chunks_to_process, desc="Entity extraction")):
+                    chunk_text = chunk_data['text'] if isinstance(chunk_data, dict) else chunk_data
+                    entities_data = rag.extract_entities_with_llm(chunk_text)
                     all_entities.extend(entities_data.get('entities', []))
                     all_relationships.extend(entities_data.get('relationships', []))
 
@@ -83,8 +84,8 @@ def ingest_all_documents():
                         all_relationships
                     )
 
-                # Step 5: Store in Pinecone (limit to 10 chunks to save space)
-                chunks_for_vectors = chunks[:10]
+                # Step 5: Store in Pinecone (store more chunks for better coverage)
+                chunks_for_vectors = chunks[:20]  # Increased from 10 to 20
                 logger.info(f"Generating embeddings for {len(chunks_for_vectors)} chunks...")
 
                 # Generate ASCII-safe doc_id using hash to avoid non-ASCII character issues
