@@ -1,6 +1,6 @@
 # az.bilet.com — Business Analysis Report
-**Dataset:** 130 active entertainment events · Turkey · Prices in TRY
-**Generated:** February 2026
+- **Dataset:** 130 active entertainment events · Turkey · Prices in TRY
+- **Generated:** February 2026
 
 ---
 
